@@ -1,0 +1,9 @@
+rttov/
+_cache/
+.vscode/
+__pycache__
+
+*.grib
+*.out
+
+test.ipynb
