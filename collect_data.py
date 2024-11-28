@@ -204,5 +204,10 @@ if __name__ == '__main__':
     }
 
     for variable, (fn, args) in tqdm(process_data.items()):
-        data = fn(track_data, *args)
-        save(variable, data, track_data)
+        while True:
+            try:
+                data = fn(track_data, *args)
+                save(variable, data, track_data)
+                break
+            except Exception:
+                continue
