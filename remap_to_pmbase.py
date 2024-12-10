@@ -106,7 +106,7 @@ if __name__ == '__main__':
     id_sig_fiels = get_var_files_by_signatures('gmi_scan_id', signatures)
     coin = {sig: make_coin_ids(sig, file) for sig, file in id_sig_fiels.items()}
 
-    # TODO:  Shouldn't it be with/without save (consistency)
+    # TODO: Shouldn't it be with/without save (consistency)
     # Variable: (extractor, (args)). First arg is variable name, second - coin by default
     process_data = {
         'gmi_tc': (process_save, (lambda x: np.mean(x, axis=0), )),

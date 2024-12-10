@@ -6,4 +6,5 @@ __pycache__
 *.grib
 *.out
 
-test.ipynb
+*test.ipynb
+tmp_*

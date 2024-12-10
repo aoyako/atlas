@@ -189,6 +189,8 @@ if __name__ == '__main__':
     times = list(zip(*track_data))[1]
     locs = list(zip(*track_data))[2]
 
+    plevels = y_era5.get_pressure_levels()
+
     # Variable: (extractor, (args)). First arg is track data by default
     process_data = {
         # 'gmi_tc': (from_gmi, ('1C-R.GPM.GMI/S1', 'Tc')),
@@ -199,8 +201,18 @@ if __name__ == '__main__':
         # 'autosnow': (lambda tdata: list(map(lambda i: y_autosnow.at(times[i].tolist(), locs[i].tolist()),range(len(track_data)))), ())
         # 'era5_2m_temperature': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['2m_temperature']),range(len(track_data)))), ()),
 
-        'era5_skin_temperature': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['skin_temperature']),range(len(track_data)))), ()),
-        'era5_surface_pressure': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['surface_pressure']),range(len(track_data)))), ())
+        # 'era5_2m_dewpoint_temperature': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['2m_dewpoint_temperature']),range(len(track_data)))), ()),
+        # 'era5_surface_pressure': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['surface_pressure']),range(len(track_data)))), ()),
+        # 'era5_skin_temperature': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['skin_temperature']),range(len(track_data)))), ()),
+        
+        # 'era5_u10': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['10m_u_component_of_wind']),range(len(track_data)))), ()),
+        # 'era5_v10': (lambda tdata: list(map(lambda i: y_era5.at_single(times[i].tolist(), locs[i].tolist(), ['10m_v_component_of_wind']),range(len(track_data)))), ()),
+        # 'era5_temperature': (lambda tdata: list(map(lambda i: y_era5.at_p(times[i].tolist(), locs[i].tolist(), ['specific_cloud_liquid_water_content'], plevels),range(len(track_data)))), ()),
+        'era5_cloud_liqud_water': (lambda tdata: list(map(lambda i: y_era5.at_p(times[i].tolist(), locs[i].tolist(), ['specific_cloud_liquid_water_content'], plevels),range(len(track_data)))), ()),
+        'era5_cloud_ice_water': (lambda tdata: list(map(lambda i: y_era5.at_p(times[i].tolist(), locs[i].tolist(), ['specific_cloud_ice_water_content'], plevels),range(len(track_data)))), ()),
+        'era5_precip_liquid_water': (lambda tdata: list(map(lambda i: y_era5.at_p(times[i].tolist(), locs[i].tolist(), ['specific_rain_water_content'], plevels),range(len(track_data)))), ()),
+        'era5_precip_ice_water': (lambda tdata: list(map(lambda i: y_era5.at_p(times[i].tolist(), locs[i].tolist(), ['specific_snow_water_content'], plevels),range(len(track_data)))), ()),
+        # 'era5_specific_humidity': (lambda tdata: list(map(lambda i: y_era5.at_p(times[i].tolist(), locs[i].tolist(), ['specific_humidity'], plevels),range(len(track_data)))), ()),
     }
 
     for variable, (fn, args) in tqdm(process_data.items()):
