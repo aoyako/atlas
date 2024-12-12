@@ -7,4 +7,5 @@ __pycache__
 *.out
 
 *test.ipynb
-tmp_*
+tmp*
+test_*

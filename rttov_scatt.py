@@ -62,7 +62,6 @@ if __name__ == '__main__':
     gmiRttov.Options.LuserCfrac = False
     gmiRttov.Options.StoreRad2 = True
     gmiRttov.Options.StoreRad = True
-    gmiRttov.Options.LuserCfrac = True
 
     try:
         gmiRttov.loadInst()
@@ -119,7 +118,7 @@ if __name__ == '__main__':
             myProfiles.GasUnits = 1 # 1: kg/kg over moist air (default)
             myProfiles.P = org2pa.reshape(nprofiles, nlevels)
             myProfiles.T = org2ta.reshape(nprofiles, nlevels)[:,::-1]
-            myProfiles.Q = org2sh.reshape(nprofiles, nlevels)[:,::-1]
+            myProfiles.Q = np.clip(org2sh.reshape(nprofiles, nlevels)[:,::-1], a_min=1e-11, a_max=None)
 
             as2m = np.array([org1ps.reshape(-1), org1t2m.reshape(-1), org1sh.reshape(-1), org1u10.reshape(-1), org1v10.reshape(-1)]).T
             myProfiles.S2m = as2m
@@ -221,20 +220,21 @@ if __name__ == '__main__':
 
                 if chtype == 0:
                     a1landsea = mwAtlas.getEmisBrdf(gmiRttov, channels)[:,0]
-                    a1landsea = (a1landsea >= 0).astype('int8')   
+                    a1landsea[a1landsea >= 0] = 1
+                    a1landsea[a1landsea < 0] = 0
 
 
             matchdir = os.path.join(OUTPUT_DIR, f'{year:04}', f'{month:02}', f'{day:02}')
             os.makedirs(matchdir, exist_ok=True)
             
-            emis_fg_path = os.path.join(matchdir, f'es_telsem_13ch.{label}.{oid}.float32.npy')
-            tc_fg_path   = os.path.join(matchdir, f'Tc_clear_13ch.{label}.{oid}.float32.npy')
-            tc_obs_path   = os.path.join(matchdir, f'Tc_hydro_13ch.{label}.{oid}.float32.npy')
-            landsea_telsem_path = os.path.join(matchdir, f'landsea_telsem.{label}.{oid}.int8.npy')
+            emis_fg_path = os.path.join(matchdir, f'es_telsem_13ch-{label}.{oid}.npy')
+            tc_fg_path   = os.path.join(matchdir, f'Tc_clear_13ch-{label}.{oid}.npy')
+            tc_obs_path   = os.path.join(matchdir, f'Tc_hydro_13ch-{label}.{oid}.npy')
+            landsea_telsem_path = os.path.join(matchdir, f'landsea_telsem-{label}.{oid}.npy')
 
-            np.save(emis_fg_path, a2emis_fg.astype('float32'))
-            np.save(tc_fg_path, a2tb_clear_sim.astype('float32')) 
-            np.save(tc_obs_path, a2tb_sim.astype('float32'))
-            np.save(landsea_telsem_path, a1landsea.astype('int8'))
+            np.save(emis_fg_path, a2emis_fg)
+            np.save(tc_fg_path, a2tb_clear_sim) 
+            np.save(tc_obs_path, a2tb_sim)
+            np.save(landsea_telsem_path, a1landsea)
 
             print('finished', label, oid)
