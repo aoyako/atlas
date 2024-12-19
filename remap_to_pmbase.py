@@ -8,9 +8,8 @@ from collect_data import get_signature, make_signature, save_single
 from collections import defaultdict
 import sys
 
-# For rttov simulations, MAPPED_FILES_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
-# For supplementary data, MAPPED_FILES_DIR = '/mnt/nas04/mykhailo/atlas_data'
-MAPPED_FILES_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
+MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas'
+MAPPED_FILES_DIR_ATLAS = '/mnt/nas04/mykhailo/atlas_data'
 
 MASTER_FILES_DIR = '/mnt/nas04/mykhailo/atlas_data'
 OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase'
@@ -39,12 +38,12 @@ def get_base_signatures():
 
     return signatures
 
-def get_var_files_by_signatures(varname, signatures, source=MAPPED_FILES_DIR):
+def get_var_files_by_signatures(varname, source_dir, signatures):
     def sig_filter(file):
         sig = get_signature(file)
         return sig in signatures
     
-    var_files = list(filter(lambda x: varname in x, q.list_files(source)))
+    var_files = list(filter(lambda x: varname in x, q.list_files(source_dir)))
     var_files = sorted(list(filter(sig_filter, var_files)))
     var_files_signs = list(map(get_signature, var_files))
 
@@ -67,9 +66,9 @@ def make_coin_ids(signature, id_file) -> tuple[dict, list]:
 
     return matches, keys
 
-def process_var(varname, matchup, fn_group):
+def process_var(varname, dir, matchup, fn_group):
     signatures = set(matchup.keys())
-    var_files = get_var_files_by_signatures(varname, signatures)
+    var_files = get_var_files_by_signatures(varname, dir, signatures)
     var_data = {k:extract_var_data(v) for k, v in var_files.items()}
 
     result = {}
@@ -108,8 +107,8 @@ def save_single(variable, data, signature):
     filepath = os.path.join(dir, filename)
     np.save(filepath, data)
 
-def process_save(varname, coin, fn):
-    sig_data = process_var(varname, coin, fn)
+def process_save(varname, dir, coin, fn):
+    sig_data = process_var(varname, dir, coin, fn)
     [save_single(varname, data, sig) for sig, data in sig_data.items()]
 
 # 0 - water only
@@ -149,40 +148,40 @@ if __name__ == '__main__':
     print(f'Processing between {DAY_BEGIN.date()} and {DAY_END.date()}')
 
     signatures = get_base_signatures()
-    id_sig_fiels = get_var_files_by_signatures('gmi_scan_id', signatures, source=MASTER_FILES_DIR)
+    id_sig_fiels = get_var_files_by_signatures('gmi_scan_id', MASTER_FILES_DIR, signatures)
     coin = {sig: make_coin_ids(sig, file) for sig, file in id_sig_fiels.items()}
 
     # TODO: Shouldn't it be with/without save (consistency)
     # Variable: (extractor, (args)). First arg is variable name, second - coin by default
     process_data = {
-        # 'autosnow': (process_save, (lambda x: surface_reclassifier(x), )),
-        # 'cloudsat_snowfall_rate_sfc': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'ecmwf_2m_temperature': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_2m_dewpoint_temperature': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_2m_temperature': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_cloud_ice_water': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_cloud_liqud_water': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_fraction_of_cloud_cover': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_precip_ice_water': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_precip_liquid_water': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_skin_temperature': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_specific_humidity': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_surface_pressure': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_temperature': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_u10': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'era5_v10': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'geoprof_dem_elevation': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'gmi_lat': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'gmi_lon': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'gmi_scan_id': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'gmi_lon': (process_save, (lambda x: np.mean(x, axis=0), )),
-        # 'gmi_tc': (process_save, (lambda x: np.mean(x, axis=0), )),
+        'autosnow': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: surface_reclassifier(x), )),
+        'cloudsat_snowfall_rate_sfc': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'ecmwf_2m_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_2m_dewpoint_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_2m_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_cloud_ice_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_cloud_liqud_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_fraction_of_cloud_cover': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_precip_ice_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_precip_liquid_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_skin_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_specific_humidity': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_surface_pressure': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_u10': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'era5_v10': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'geoprof_dem_elevation': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'gmi_lat': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'gmi_lon': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'gmi_scan_id': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'gmi_lon': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        'gmi_tc': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
 
-        'Tc_clear_13ch': (process_save, (lambda x: np.mean(x, axis=0), )),
-        'Tc_hydro_13ch': (process_save, (lambda x: np.mean(x, axis=0), )),
-        'es_telsem_13ch': (process_save, (lambda x: np.mean(x, axis=0), )),
-        'landsea_telsem': (process_save, (lambda x: np.mean(x, axis=0), )),
+        'Tc_clear_13ch': (MAPPED_FILES_DIR_RTTOV, process_save, (lambda x: np.mean(x, axis=0), )),
+        'Tc_hydro_13ch': (MAPPED_FILES_DIR_RTTOV, process_save, (lambda x: np.mean(x, axis=0), )),
+        'es_telsem_13ch': (MAPPED_FILES_DIR_RTTOV, process_save, (lambda x: np.mean(x, axis=0), )),
+        'landsea_telsem': (MAPPED_FILES_DIR_RTTOV, process_save, (lambda x: np.mean(x, axis=0), )),
     }
 
-    for variable, (fn, args) in tqdm(process_data.items()):
-        fn(variable, coin, *args)
+    for variable, (dir, fn, args) in tqdm(process_data.items()):
+        fn(variable, dir, coin, *args)
