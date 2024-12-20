@@ -8,11 +8,11 @@ from collect_data import get_signature, make_signature, save_single
 from collections import defaultdict
 import sys
 
-MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas'
+MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas_delta'
 MAPPED_FILES_DIR_ATLAS = '/mnt/nas04/mykhailo/atlas_data'
 
 MASTER_FILES_DIR = '/mnt/nas04/mykhailo/atlas_data'
-OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase'
+OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase_delta'
 
 
 parser = argparse.ArgumentParser(description='Dataset generator')
@@ -154,28 +154,28 @@ if __name__ == '__main__':
     # TODO: Shouldn't it be with/without save (consistency)
     # Variable: (extractor, (args)). First arg is variable name, second - coin by default
     process_data = {
-        'autosnow': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: surface_reclassifier(x), )),
-        'cloudsat_snowfall_rate_sfc': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'ecmwf_2m_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_2m_dewpoint_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_2m_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_cloud_ice_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_cloud_liqud_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_fraction_of_cloud_cover': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_precip_ice_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_precip_liquid_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_skin_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_specific_humidity': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_surface_pressure': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_u10': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'era5_v10': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'geoprof_dem_elevation': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'gmi_lat': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'gmi_lon': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'gmi_scan_id': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'gmi_lon': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
-        'gmi_tc': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'autosnow': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: surface_reclassifier(x), )),
+        # 'cloudsat_snowfall_rate_sfc': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'ecmwf_2m_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_2m_dewpoint_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_2m_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_cloud_ice_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_cloud_liqud_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_fraction_of_cloud_cover': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_precip_ice_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_precip_liquid_water': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_skin_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_specific_humidity': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_surface_pressure': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_temperature': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_u10': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'era5_v10': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'geoprof_dem_elevation': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'gmi_lat': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'gmi_lon': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'gmi_scan_id': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'gmi_lon': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
+        # 'gmi_tc': (MAPPED_FILES_DIR_ATLAS, process_save, (lambda x: np.mean(x, axis=0), )),
 
         'Tc_clear_13ch': (MAPPED_FILES_DIR_RTTOV, process_save, (lambda x: np.mean(x, axis=0), )),
         'Tc_hydro_13ch': (MAPPED_FILES_DIR_RTTOV, process_save, (lambda x: np.mean(x, axis=0), )),

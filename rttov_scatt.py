@@ -27,7 +27,9 @@ args = parser.parse_args()
 DAY_BEGIN = args.begin
 DAY_END   = args.end
 
-OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
+ADD_DELTA = True
+# OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
+OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas_delta' # es + delta
 DATA_DIR = '/mnt/nas04/mykhailo/atlas_data'
 
 def make_half_levels(p, sp):
@@ -163,6 +165,14 @@ if __name__ == '__main__':
             a2tb_sim = np.empty([nprofiles, 13], dtype='float64')
             a2emis_fg = np.empty([nprofiles, 13], dtype='float64')
 
+            if ADD_DELTA:
+                shared_delta_0_6 = np.random.uniform(-0.3, 0.3, size=(1))
+                shared_delta_7_12 = np.random.uniform(-0.3, 0.3, size=(1))
+                delta = np.hstack([
+                    np.tile(shared_delta_0_6, (nprofiles, 7)),
+                    np.tile(shared_delta_7_12, (nprofiles, 6)),
+                ])
+
             for chtype in [0, 1]:
                 if chtype == 0:
                     channels = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -188,6 +198,16 @@ if __name__ == '__main__':
                     # Do not supply a channel list for SEVIRI: this returns emissivity/BRDF values for all
                     # *loaded* channels which is what is required
                     surfemisrefl_gmi[0,:,:] = mwAtlas.getEmisBrdf(gmiRttov, channels)
+
+                    # Add delta to emissvity
+                    if ADD_DELTA:
+                        valid_mask = (surfemisrefl_gmi[0,:,:] >= 0)
+                        if chtype == 0:
+                            dd = delta[:,:9]
+                        elif chtype == 1:
+                            dd = delta[:,9:]
+                        surfemisrefl_gmi[0,valid_mask] += dd[valid_mask]
+                        surfemisrefl_gmi[0,valid_mask] = np.clip(surfemisrefl_gmi[0,valid_mask], 0, 1)
 
                 except pyrttov.RttovError as e:
                     # If there was an error the emissivities/BRDFs will not have been modified so it
