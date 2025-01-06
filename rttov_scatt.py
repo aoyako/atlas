@@ -28,8 +28,8 @@ DAY_BEGIN = args.begin
 DAY_END   = args.end
 
 ADD_DELTA = True
-# OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
-OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas_delta' # es + delta
+OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
+# OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas_delta' # es + delta
 DATA_DIR = '/mnt/nas04/mykhailo/atlas_data'
 
 def make_half_levels(p, sp):

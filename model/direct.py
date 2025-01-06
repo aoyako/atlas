@@ -3,25 +3,49 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
+def objective(train_loader, val_loader):
+    def search(trial):
+        n_layers = trial.suggest_int("n_layers", 1, 5)
+        n_units = trial.suggest_int("n_units", 32, 128)
+        dropout_rate = trial.suggest_float("dropout_rate", 0.1, 0.5)
+        learning_rate = trial.suggest_float("learning_rate", 1e-4, 1e-2, log=True)
+
+        model = SimpleNN(16, n_layers, n_units, dropout_rate)
+
+        early_stopper = EarlyStopping(patience=10)
+        trainer = ModelTrainer(model, early_stopper=early_stopper, lr=learning_rate)
+
+        trainer.train(train_loader, val_loader, epochs=1000)
+        return trainer.validate(val_loader)
+    return search
+
+def optuna_best(study, train_loader, val_loader):
+    best_params = study.best_params
+
+    model = SimpleNN(16, best_params['n_layers'], best_params['n_units'], best_params['dropout_rate'])
+
+    early_stopper = EarlyStopping(patience=10)
+    trainer = ModelTrainer(model, early_stopper=early_stopper, lr=best_params['learning_rate'])
+
+    trainer.train(train_loader, val_loader, epochs=1000)
+    return model
+
 class SimpleNN(nn.Module):
-    def __init__(self):
+    def __init__(self, input_dim, n_units, n_layers, dropout_rate):
         super(SimpleNN, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(16, 64),
-            nn.BatchNorm1d(64),
-            nn.Dropout(0.3),
-            nn.ReLU(),
-            # nn.Linear(64, 128),
-            # nn.BatchNorm1d(128),
-            # nn.Dropout(0.3),
-            # nn.ReLU(),
-            nn.Linear(64, 64),
-            nn.BatchNorm1d(64),
-            nn.Dropout(0.3),
-            nn.ReLU(),
-            nn.Linear(64, 13),
-            nn.Sigmoid()
-        )
+        self.network = []
+
+        for _ in range(n_layers):
+            self.network.append(nn.Linear(input_dim, n_units))
+            self.network.append(nn.BatchNorm1d(n_units))
+            self.network.append(nn.ReLU())
+            self.network.append(nn.Dropout(dropout_rate))
+            input_dim = n_units
+        
+        self.network.append(nn.Linear(input_dim, 13))
+        self.network.append(nn.Sigmoid())
+
+        self.network = nn.Sequential(*self.network)
 
     def forward(self, x):
         return self.network(x)
@@ -31,7 +55,7 @@ class ModelTrainer:
         self.model = model
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(model.parameters(), lr=lr)
-        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=10, gamma=0.1)
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=30, gamma=0.1)
         self.train_hist = []
         self.val_hist = []
         self.early_stopper = early_stopper
