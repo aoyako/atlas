@@ -22,15 +22,28 @@ import pyrttov
 parser = argparse.ArgumentParser(description='Dataset generator')
 parser.add_argument('--begin', type=lambda s: datetime.strptime(s, '%Y/%m/%d'), required=False, help='Begin date in YYYY/MM/DD format', default=datetime(2014, 4, 2))
 parser.add_argument('--end',   type=lambda s: datetime.strptime(s, '%Y/%m/%d'), required=False, help='End date in YYYY/MM/DD format',   default=datetime(2014, 4, 3))
+parser.add_argument('--delta',   type=bool, required=False, help='use +- delta',   default=False)
 args = parser.parse_args()
 
 DAY_BEGIN = args.begin
 DAY_END   = args.end
 
-ADD_DELTA = True
-OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
-# OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas_delta' # es + delta
+ADD_DELTA = args.delta
+
+if not ADD_DELTA:
+    OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas'
+else:
+    OUTPUT_DIR = '/mnt/nas04/mykhailo/rttov_atlas_delta' # es + delta
 DATA_DIR = '/mnt/nas04/mykhailo/atlas_data'
+
+print(f"""RUNNING RTTOV SIMULATION
+        ADD_DELTA: {ADD_DELTA}
+        OUTPUT_DIR: {OUTPUT_DIR}
+
+        INTERVAL
+        BEGIN: {DAY_BEGIN}
+        END: {DAY_END}
+      """)
 
 def make_half_levels(p, sp):
     p_left = np.hstack([p, np.zeros((nprofiles, 1), dtype=np.float64)])

@@ -8,22 +8,35 @@ from collect_data import get_signature, make_signature, save_single
 from collections import defaultdict
 import sys
 
-# MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas_delta'
-MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas'
-MAPPED_FILES_DIR_ATLAS = '/mnt/nas04/mykhailo/atlas_data'
-
-MASTER_FILES_DIR = '/mnt/nas04/mykhailo/atlas_data'
-# OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase_delta'
-OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase'
-
-
 parser = argparse.ArgumentParser(description='Dataset generator')
 parser.add_argument('--begin', type=lambda s: datetime.strptime(s, '%Y/%m/%d'), required=False, help='Begin date in YYYY/MM/DD format', default=datetime(2014, 4, 2))
 parser.add_argument('--end',   type=lambda s: datetime.strptime(s, '%Y/%m/%d'), required=False, help='End date in YYYY/MM/DD format',   default=datetime(2014, 4, 3))
+parser.add_argument('--delta',   type=bool, required=False, help='use +- delta',   default=False)
 args = parser.parse_args()
 
 DAY_BEGIN = args.begin
 DAY_END   = args.end
+USE_DELTA = args.delta
+
+if USE_DELTA:
+    MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas_delta'
+    OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase_delta'
+else:
+    MAPPED_FILES_DIR_RTTOV = '/mnt/nas04/mykhailo/rttov_atlas'
+    OUTPUT_DIR = '/mnt/nas04/mykhailo/atlas_data_pmbase'
+
+MAPPED_FILES_DIR_ATLAS = '/mnt/nas04/mykhailo/atlas_data'
+MASTER_FILES_DIR = '/mnt/nas04/mykhailo/atlas_data'
+
+print(f"""
+        RUNNING PMBASE REMAP
+        RTTOV_FILES: {MAPPED_FILES_DIR_RTTOV}
+        OUTPUT_DIR: {OUTPUT_DIR}
+
+        INTERVAL
+        BEGIN: {DAY_BEGIN}
+        END: {DAY_END}
+      """)
 
 def get_base_signatures():
     def time_filter(file):
